@@ -4,6 +4,7 @@ import base64
 import sys
 
 import simplejson
+
 from captcha.helpers import captcha_image_url
 # 验证码模块
 from captcha.models import CaptchaStore
@@ -20,6 +21,8 @@ from vmm.model.forms import user_regist
 # 引用模型和表单
 from vmm.model.models import users
 from vmm.model.token import Token
+import thread
+import time
 
 # 验证码模块
 
@@ -33,7 +36,7 @@ token_confirm = Token(settings.SECRET_KEY)
 def verify_user_info(id, password):
     try:
         db_info = users.objects.filter(user_id=id)
-        #enabled=db_info.values_list('enabled')[0][0]
+        # enabled=db_info.values_list('enabled')[0][0]
         if db_info:
             db_password = str(db_info.values_list('user_password')[0][0])
             if db_password == base64.encodestring(password):
@@ -51,7 +54,12 @@ def verify_user_info(id, password):
 
 # 登录视图
 def login(request):
-    # try:
+    try:
+        thread.start_new_thread(print_time, ("Thread-1", 2,))
+        thread.start_new_thread(print_time, ("Thread-2", 4,))
+    except:
+        print "Error: unable to start thread"
+
     if request.method == 'POST':
         login_info = user_login(request.POST)
         result = {'user_pass': False, 'captcha': False, 'isadmin': False}
@@ -90,12 +98,9 @@ def login(request):
         tp = loader.get_template("login.html")
         html = tp.render({"hashkey": hashkey, "imgage_url": imgage_url})
         return HttpResponse(html)
-        # except:
-        #     print("请求url包含错误信息！")
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------
-
 
 
 '''
@@ -118,8 +123,6 @@ def logout(request):
 # -----------------------------------------------------------------------------------------------------------------------------------
 
 
-
-
 # 验证码视图
 def captcha_refresh(request):
     """  Return json with new captcha for ajax refresh request """
@@ -137,25 +140,22 @@ def captcha_refresh(request):
 # -----------------------------------------------------------------------------------------------------------------------------------
 
 
-
-
 # 注册账号
 def userregist(request):
     if request.method == 'POST':
         regist_info = user_regist(request.POST)
 
         if regist_info.is_valid():
+            b = 1
             input_id = regist_info.cleaned_data["user_id"]
             db_user_id = users.objects.filter(user_id=input_id)
             user_info = users.objects.all()
             for user in user_info:
                 if user.user_id == input_id:
-                    if user.user_password == "":
-                        b = 1
-                        break
-                    else:
+                    if user.user_password != "":
                         b = 0
                         break
+
             if b == 0:
                 print (users.user_password)
                 ss = {"reg": "已有密码"}
@@ -225,3 +225,10 @@ that sent to the register email,user can login the site normally.
     tp = loader.get_template("re_success.html")
     html = tp.render()
     return HttpResponse(html)
+
+def print_time( threadName, delay):
+   count = 0
+   while 1:
+      time.sleep(delay)
+      count += 1
+      print "%s: %s" % ( threadName, time.ctime(time.time()) )

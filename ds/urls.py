@@ -14,17 +14,24 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.conf.urls import handler404, handler500
 from django.contrib import admin
 # 导入vmm.vmtest文件
 import vmm.login
 import vmm.admin
 import vmm.user
+import vmm
 
 # 验证码模块开始#
 from captcha.models import CaptchaStore
 from captcha.helpers import captcha_image_url
 
 # 验证码模块结束#
+
+handler404 = "vmm.ErrorPage.page_not_found"
+
+handler500 = "vmm.ErrorPage.page_not_found"
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
