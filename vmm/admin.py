@@ -6,6 +6,7 @@ import atexit
 
 import simplejson
 # 从django.http命名空间引入一个HttpResponse的类
+from login import login
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
@@ -71,14 +72,19 @@ def listvm(request):
             vm_infor = vms.objects.all()  # 获得vms表单信息
             user_info = users.objects.all()  # 获得users表单信息
             vms_include = []  # 用于打包虚拟机列表及其使用者
+            k=False
             for vm_sq in vm_infor:
                 vms_obj = vm_obj()
                 vms_obj.vm_ob = vm_sq
                 for user in user_info:
                     if (user.user_id == vm_sq.vm_user_id):
+                        k=True
                         vms_obj.user = user.real_name
                         vms_obj.enabled = vm_sq.vm_enabled
                         break
+                if(not k):
+                    vms_obj.user = ""
+                    vms_obj.enabled = ""
                 vms_include.append(vms_obj)
             # 载入模板，传递一个集合给模板，让模板渲染成html返回
             tp = loader.get_template("backend/list.html")
@@ -87,9 +93,7 @@ def listvm(request):
         except vmodl.MethodFault as error:
             return HttpResponse("Caught vmodl fault : " + error.msg)
     else:
-        tp = loader.get_template("backend/list.html")
-        html = tp.render()
-        return HttpResponse("页面未找到！")
+        login(request)
 
 
 # -----------------------------------------------------------------------------------------------
@@ -177,7 +181,7 @@ def dispapp(request):
             html = tp.render({"vms": vms_include})
             return HttpResponse(html)
     else:
-        return HttpResponse("页面未找到")
+         login(request)
 
 
 # -----------------------------------------------------------------------------------------------
@@ -233,7 +237,8 @@ def profile(request):
     vm_infor = vms.objects.all()  # 获得vms表单信息
     user_info = users.objects.all()  # 获得users表单信息
     users_ob = []  # 存放信息列表
-    for user in user_info:
+    if(user_info):
+     for user in user_info:
         if user.user_password != "":
             user_ob = vm_obj()
             user_ob.user = user
