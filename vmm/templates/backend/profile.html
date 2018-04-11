@@ -22,6 +22,8 @@
                 </tr>
                 </thead>
                 <tbody>
+                {% if users %}
+
                 {% for use in users %}
                     <tr id="r{{ forloop.counter }}">
                         <td class="text-center">
@@ -45,6 +47,7 @@
                     </tr>
 
                 {% endfor %}
+                {% endif %}
                 </tbody>
                 <tfoot>
                 <tr>

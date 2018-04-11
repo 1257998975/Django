@@ -65,8 +65,10 @@
         </thead>
         <tbody>
 
+        {% if vms %}
 
-        {% for vm in vms %}
+
+            {% for vm in vms %}
 
                     {% if not vm.vm_ob.config.template %}
                         <tr id="r{{ forloop.counter }}">
@@ -96,6 +98,7 @@
                     </tr>
                 {% endif %}
             {% endfor %}
+        {% endif %}
             </tbody>
             <tfoot>
             <tr>

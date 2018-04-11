@@ -28,6 +28,8 @@
         </tr>
         </thead>
         <tbody>
+{% if vms %}
+
 
 
         {% for vm in vms %}
@@ -65,7 +67,7 @@
                         </td>
                     </tr>
             {% endfor %}
-
+{% endif %}
         </tbody>
             <tfoot>
             <tr>

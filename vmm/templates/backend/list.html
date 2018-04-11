@@ -32,6 +32,8 @@
         </thead>
         <tbody>
 
+{% if vms %}
+
 
         {% for vm in vms %}
                         <tr id="r{{ forloop.counter }}">
@@ -65,6 +67,7 @@
                         </td>
                     </tr>
             {% endfor %}
+        {% endif %}
             </tbody>
             <tfoot>
             <tr>

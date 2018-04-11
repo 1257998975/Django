@@ -72,17 +72,17 @@ def listvm(request):
             vm_infor = vms.objects.all()  # 获得vms表单信息
             user_info = users.objects.all()  # 获得users表单信息
             vms_include = []  # 用于打包虚拟机列表及其使用者
-            k=False
+            k = False
             for vm_sq in vm_infor:
                 vms_obj = vm_obj()
                 vms_obj.vm_ob = vm_sq
                 for user in user_info:
                     if (user.user_id == vm_sq.vm_user_id):
-                        k=True
+                        k = True
                         vms_obj.user = user.real_name
                         vms_obj.enabled = vm_sq.vm_enabled
                         break
-                if(not k):
+                if (not k):
                     vms_obj.user = ""
                     vms_obj.enabled = ""
                 vms_include.append(vms_obj)
@@ -97,7 +97,6 @@ def listvm(request):
 
 
 # -----------------------------------------------------------------------------------------------
-
 
 
 '''
@@ -127,7 +126,7 @@ def createvm(request):
                     a_vm_memory = vm_regist_info.cleaned_data["vm_memory"]
                     vm = vms.objects.create(vm_user_id=a_vm_user_id, vm_name=a_vm_name, vm_purpose=a_vm_purpose,
                                             vm_os=a_vm_os, vm_cpu=a_vm_cpu, vm_disks=a_vm_disk, vm_memory=a_vm_memory,
-                                            vm_os_admin=1, vm_type=a_vm_type,vm_dispose=1)
+                                            vm_os_admin=1, vm_type=a_vm_type, vm_dispose=1)
                     if creat(vm) & config(vm):
                         return HttpResponse("创建成功, 请返回虚拟机列表页面查看")
                     else:
@@ -167,6 +166,7 @@ def dispapp(request):
             vm_infor = vms.objects.all()  # 获得vms表单信息
             user_infor = users.objects.all()
             vms_include = []  # 用于打包虚拟机列表及其使用者
+        if vm_infor:
             for vm_sq in vm_infor:
                 if (vm_sq.vm_dispose == False):
                     vms_obj = vm_obj()
@@ -180,12 +180,15 @@ def dispapp(request):
             tp = loader.get_template("backend/disapp.html")
             html = tp.render({"vms": vms_include})
             return HttpResponse(html)
+        else:
+            tp = loader.get_template("backend/disapp.html")
+            html = tp.render({"vms": vms_include})
+            return HttpResponse(html)
     else:
-         login(request)
+        login(request)
 
 
 # -----------------------------------------------------------------------------------------------
-
 
 
 '''
@@ -227,7 +230,6 @@ def power(request):
 # ---------------------------------------------------------------------------------------------------
 
 
-
 '''
 显示用户列表
 '''
@@ -237,25 +239,23 @@ def profile(request):
     vm_infor = vms.objects.all()  # 获得vms表单信息
     user_info = users.objects.all()  # 获得users表单信息
     users_ob = []  # 存放信息列表
-    if(user_info):
-     for user in user_info:
-        if user.user_password != "":
-            user_ob = vm_obj()
-            user_ob.user = user
-            vms_ob = []
-            for vm in vm_infor:
-                if (vm.vm_user_id == user.user_id):
-                    vms_ob.append(vm)
-            user_ob.vm_list = vms_ob
-            users_ob.append(user_ob)
+    if user_info:
+        for user in user_info:
+            if user.user_password != "":
+                user_ob = vm_obj()
+                user_ob.user = user
+                vms_ob = []
+                for vm in vm_infor:
+                    if (vm.vm_user_id == user.user_id):
+                        vms_ob.append(vm)
+                user_ob.vm_list = vms_ob
+                users_ob.append(user_ob)
     tp = loader.get_template("backend/profile.html")
     html = tp.render({"users": users_ob})
     return HttpResponse(html)
 
 
 # --------------------------------------------------------------------------------------------------------
-
-
 
 
 # 修改个人信息
