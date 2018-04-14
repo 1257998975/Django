@@ -67,6 +67,7 @@ def index(request):
 
 
 def listvm(request):
+
     if request.session.get('user_id'):
         try:
             vm_infor = vms.objects.all()  # 获得vms表单信息

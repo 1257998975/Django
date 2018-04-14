@@ -54,11 +54,11 @@ def verify_user_info(id, password):
 
 # 登录视图
 def login(request):
-    try:
-        thread.start_new_thread(print_time, ("Thread-1", 2,))
-        thread.start_new_thread(print_time, ("Thread-2", 4,))
-    except:
-        print "Error: unable to start thread"
+    # try:
+    #     thread.start_new_thread(print_time, ("Thread-1", 2,))
+    #     thread.start_new_thread(print_time, ("Thread-2", 4,))
+    # except:
+    #     print "Error: unable to start thread"
 
     if request.method == 'POST':
         login_info = user_login(request.POST)
