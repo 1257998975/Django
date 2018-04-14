@@ -2,7 +2,7 @@
 # 从django.http命名空间引入一个HttpResponse的类
 # 引用VMware相关库
 import atexit
-
+from django.contrib import messages
 from django.http import HttpResponse
 from django.template import loader
 from pyVim import connect
@@ -187,21 +187,21 @@ def modify(request):
     if request.method == 'POST':
         regist_info = user_regist(request.POST)
         if regist_info.is_valid():
-            input_id = regist_info.cleaned_data["user_id"]
+            input_id =request.session.get("user_id")
             db_user_id = users.objects.filter(user_id=input_id)
             if db_user_id:
                 if regist_info.cleaned_data["user_password1"] == regist_info.cleaned_data["user_password2"]:
                     db_info_renew = users.objects.get(user_id=input_id)
-                    db_info_renew.user_id = regist_info.cleaned_data["user_id"]
-                    db_info_renew.user_password = regist_info.cleaned_data["user_password1"]
                     db_info_renew.real_name = regist_info.cleaned_data["real_name"]
+                    db_info_renew.user_password = regist_info.cleaned_data["user_password1"]
                     db_info_renew.email = regist_info.cleaned_data["email"]
                     db_info_renew.mobile = regist_info.cleaned_data["mobile"]
                     db_info_renew.isadmin = False
-                    db_info_renew.is_active = False
-                    db_info_renew.comment = regist_info.cleaned_data["comment"]
+                    db_info_renew.is_active = True
                     db_info_renew.save()
-                    return HttpResponse("修改成功")
+                    #messages.add_message(request,messages.SUCCESS ,'修改成功')
+                    return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
+                    #return "修改成功"
                 else:
                     return HttpResponse("密码不匹配")
             else:

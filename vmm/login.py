@@ -38,6 +38,7 @@ def verify_user_info(id, password):
         db_info = users.objects.filter(user_id=id)
         # enabled=db_info.values_list('enabled')[0][0]
         if db_info:
+
             db_password = str(db_info.values_list('user_password')[0][0])
             if db_password == base64.encodestring(password):
                 if db_info.values_list('isactive'):
@@ -142,6 +143,7 @@ def captcha_refresh(request):
 
 # 注册账号
 def userregist(request):
+    b = 1
     if request.method == 'POST':
         regist_info = user_regist(request.POST)
 
