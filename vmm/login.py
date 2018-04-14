@@ -154,7 +154,6 @@ def userregist(request):
     b = 1
     if request.method == 'POST':
         regist_info = user_regist(request.POST)
-
         if regist_info.is_valid():
             b = 1
             input_id = regist_info.cleaned_data["user_id"]
@@ -201,7 +200,6 @@ def userregist(request):
                     ss = {"reg": "该账号不能注册"}
                     return HttpResponse(simplejson.dumps(ss, ensure_ascii=False), content_type="application/json")
         else:
-            print (regist_info.data)
             ss = {"reg": "输入错误"}
             return HttpResponse(simplejson.dumps(ss, ensure_ascii=False), content_type="application/json")
 

@@ -13,7 +13,7 @@ class user_login(forms.Form):
 class user_regist(forms.Form):
     real_name = forms.CharField()
     email = forms.EmailField()
-    mobile= forms.CharField()
+    user_id = forms.CharField()
     user_password1 = forms.CharField()
     user_password2 = forms.CharField()
 
