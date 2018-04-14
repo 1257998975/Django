@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # 从django.http命名空间引入一个HttpResponse的类
 # 引用VMware相关库
+import base64
 import atexit
 from django.contrib import messages
 from django.http import HttpResponse
@@ -14,10 +15,11 @@ from vmm.admin import vm_obj
 from vmm.model.models import vms
 
 from vmm.model.forms import vm_regist
+from vmm.model.forms import user_modify
 from django.shortcuts import render
 from vmm.model.models import users
 from vmm.model.forms import user_regist
-
+import simplejson
 import atexit
 import ssl
 import sys
@@ -185,7 +187,7 @@ def createvm(request):
 # 修改个人信息
 def modify(request):
     if request.method == 'POST':
-        regist_info = user_regist(request.POST)
+        regist_info = user_modify(request.POST)
         if regist_info.is_valid():
             input_id =request.session.get("user_id")
             db_user_id = users.objects.filter(user_id=input_id)
@@ -193,12 +195,13 @@ def modify(request):
                 if regist_info.cleaned_data["user_password1"] == regist_info.cleaned_data["user_password2"]:
                     db_info_renew = users.objects.get(user_id=input_id)
                     db_info_renew.real_name = regist_info.cleaned_data["real_name"]
-                    db_info_renew.user_password = regist_info.cleaned_data["user_password1"]
+                    db_info_renew.user_password = base64.encodestring(regist_info.cleaned_data["user_password1"])
                     db_info_renew.email = regist_info.cleaned_data["email"]
                     db_info_renew.mobile = regist_info.cleaned_data["mobile"]
                     db_info_renew.isadmin = False
                     db_info_renew.is_active = True
                     db_info_renew.save()
+                    data={"data":"修改成功"}
                     #messages.add_message(request,messages.SUCCESS ,'修改成功')
                     return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
                     #return "修改成功"

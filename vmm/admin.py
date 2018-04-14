@@ -201,9 +201,9 @@ def power(request):
     uuid = request.GET.get('uuid')
     op_type = request.GET.get('type')
     try:
-        si = connect.SmartConnectNoSSL(host="172.16.3.141",
+        si = connect.SmartConnectNoSSL(host="10.84.0.116",
                                        user="administrator@vsphere.local",
-                                       pwd="Server@2012",
+                                       pwd="123qweASD.",
                                        port=443)
     except vim.fault.InvalidLogin:
         print("Could not connect to the specified host using specified "
