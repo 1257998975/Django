@@ -52,6 +52,17 @@ def verify_user_info(id, password):
     except:
         return False  # 未知错误  # ------------------------------------------------------------------------------------------------------------------------------
 
+# 判断用户是否为管理员
+def isadmin_user_info(id):
+    db_info = users.objects.filter(user_id=id)
+    isadmin = db_info.values_list('isadmin')[0][0]  # 返回一个布尔类型！
+    if isadmin:
+        return True
+    else:
+        return False
+
+
+
 
 # 登录视图
 def login(request):
@@ -68,14 +79,11 @@ def login(request):
         if login_info.is_valid():
             if verify_user_info(str(login_info.cleaned_data['user_id']),
                                 str(login_info.cleaned_data['user_password'])):
-                print("验证成功！")
                 result['user_pass'] = True
                 result['captcha'] = True
                 request.session['user_id'] = str(login_info.cleaned_data['user_id'])  # 创建session
                 # 判断用户权限
-                db_info = users.objects.filter(user_id=request.session.get('user_id'))
-                isadmin = db_info.values_list('isadmin')[0][0]  # 返回一个布尔类型！
-                if isadmin:
+                if isadmin_user_info(request.session.get('user_id')):
                     result['admin'] = True
                     # 返回JSON格式的对象
                     return HttpResponse(simplejson.dumps(result, ensure_ascii=False), content_type="application/json")

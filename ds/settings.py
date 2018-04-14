@@ -79,9 +79,9 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'djiango',
+        'NAME': 'django',
         'USER': 'root',
-        'PASSWORD': 'Djiango',
+        'PASSWORD': 'Django',
         'HOST': '',
         'PORT': '3306',
     }
@@ -142,4 +142,4 @@ EMAIL_HOST_PASSWORD = 'mypython1'
 DEFAULT_FROM_EMAIL = 'Admin<mypython1@163.com>'
 
 
-DOMAIN='http://127.0.0.1:8000'
+DOMAIN='http://127.0.0.1:8000/'
