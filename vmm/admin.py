@@ -23,6 +23,7 @@ from vmm.model.models import vms
 from vmm.back import creat
 from vmm.model.forms import user_regist
 from vmm.back import config
+from  vmm.ob_vsphere import ob_vs
 
 '''
 定义一个方法，处理用户的管理员登录！
@@ -31,20 +32,7 @@ from vmm.back import config
 
 def index(request):
     if request.session.get('user_id'):
-        # 连接vcenter服务器
-        service_instance = connect.SmartConnectNoSSL(host="10.84.0.116",
-                                                     user="administrator@vsphere.local",
-                                                     pwd="123qweASD.",
-                                                     port=443)
-
-        # 从根目录下查找虚拟机
-        atexit.register(connect.Disconnect, service_instance)
-        content = service_instance.RetrieveContent()
-        container = content.rootFolder  # 从哪查找
-        viewType = [vim.VirtualMachine]  # 查找的对象类型是什么
-        recursive = True  # 是否进行递归查找
-        containerView = content.viewManager.CreateContainerView(container, viewType, recursive)
-        vms_list = containerView.view  # 执行查找
+        vms_list = ob_vs.vmlist()  # 执行查找
         j = 0
         i = 0
         for vm in vms_list:
@@ -201,10 +189,7 @@ def power(request):
     uuid = request.GET.get('uuid')
     op_type = request.GET.get('type')
     try:
-        si = connect.SmartConnectNoSSL(host="10.84.0.116",
-                                       user="administrator@vsphere.local",
-                                       pwd="123qweASD.",
-                                       port=443)
+        si = ob_vs.si
     except vim.fault.InvalidLogin:
         print("Could not connect to the specified host using specified "
               "username and password")

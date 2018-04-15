@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # 导入vSphere SDK模块
 import atexit
-
+from vmm.ob_vsphere import ob_vs
 from django.http import HttpResponse
 from django.template import loader
 from pyVim import connect
@@ -95,11 +95,7 @@ def creat(vm):
     Let this thing fly
     """
     # connect this thing
-    si = connect.SmartConnectNoSSL(
-        host="172.16.3.141",
-        user="administrator@vsphere.local",
-        pwd="Server@2012",
-        port=443)
+    si = ob_vs.si
     # disconnect this thing
     atexit.register(Disconnect, si)
     content = si.RetrieveContent()
@@ -144,11 +140,7 @@ def config(vm):
     name = vm.vm_name
     CPU = vm.vm_cpu
     memory = vm.vm_memory
-    si = connect.SmartConnectNoSSL(
-        host="172.16.3.141",
-        user="administrator@vsphere.local",
-        pwd="Server@2012",
-        port=443)
+    si = ob_vs.si
     # disconnect this thing
     atexit.register(Disconnect, si)
 

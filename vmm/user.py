@@ -2,6 +2,7 @@
 # 从django.http命名空间引入一个HttpResponse的类
 # 引用VMware相关库
 import base64
+from vmm.ob_vsphere import ob_vs
 import atexit
 from django.contrib import messages
 from django.http import HttpResponse
@@ -92,19 +93,8 @@ def listvm(request):
     if user_id:
         try:
             # 连接vcenter服务器
-            service_instance = connect.SmartConnectNoSSL(host="172.16.3.141",
-                                                         user="administrator@vsphere.local",
-                                                         pwd="Server@2012",
-                                                         port=443)
 
-            # 从根目录下查找虚拟机
-            atexit.register(connect.Disconnect, service_instance)
-            content = service_instance.RetrieveContent()
-            container = content.rootFolder  # 从哪查找
-            viewType = [vim.VirtualMachine]  # 查找的对象类型是什么
-            recursive = True  # 是否进行递归查找
-            containerView = content.viewManager.CreateContainerView(container, viewType, recursive)
-            vms_list = containerView.view  # 执行查找
+            vms_list = ob_vs.vmlist()  # 执行查找
             vm_infor = vms.objects.all()  # 获得vms表单信息
             vms_include = []  # 用于打包虚拟机列表及其使用者
             for vm_sq in vm_infor:
@@ -219,10 +209,7 @@ def modify(request):
 
 # 获取某虚拟机的url
 def main(vmuuid):
-    si = connect.SmartConnectNoSSL(host="172.16.3.141",
-                                   user="administrator@vsphere.local",
-                                   pwd="Server@2012",
-                                   port=443)
+    si =ob_vs.si
     atexit.register(connect.Disconnect, si)
     content = si.RetrieveContent()
     container = content.rootFolder  # 从哪查找
