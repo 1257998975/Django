@@ -34,7 +34,6 @@ class vms(models.Model):
     vm_user_id = models.CharField(max_length=20)
     vm_type = models.IntegerField()
     vm_ports = models.CharField(max_length=20)
-
     vm_ip = models.CharField(max_length=20)
     vm_os = models.CharField(max_length=20)
     vm_cpu = models.IntegerField()
