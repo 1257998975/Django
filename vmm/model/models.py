@@ -25,6 +25,7 @@ class users(models.Model):
 
 # 创建虚拟机信息表
 class vms(models.Model):
+    vm_id = models.AutoField(primary_key=True)
     vm_name = models.CharField(max_length=50)
     vm_uuid = models.CharField(max_length=50)
     vm_purpose = models.TextField()
@@ -42,7 +43,7 @@ class vms(models.Model):
     vm_enabled = models.IntegerField(default=1)
     vm_power = models.IntegerField(default=0)
     vm_dispose=models.BooleanField(default=False)
-    vm_id=models.AutoField(primary_key=True)
+
     def __unicode__(self):
         return self.vm_uuid
 
