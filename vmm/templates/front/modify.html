@@ -3,7 +3,8 @@
     <link rel="stylesheet" type="text/css" href="/static/css/style.css">
     <link rel="stylesheet" type="text/css" href="/vmm/static/css/createvm.css">
 {% endblock %}
-    {% block page_js %}<script type="text/javascript" src="/static/js/common.js"></script>{% endblock %}
+    {% block page_js %}<script type="text/javascript" src="/static/js/common.js"></script>
+    <script type="text/javascript" src="/static/js/modify.js"></script>{% endblock %}
 
 {% block title %}修改资料{% endblock %}
 
@@ -41,7 +42,7 @@
 <div id="modifyinfo" class="app_vm">
     <div class="panel-heading"><h5>修改信息</h5></div>
 <div class="panel-body" style="width: 500px;">
-    <form action='' method="POST">
+    <form action='' method="POST" id="form1">
           <div class="form-group app_vm">
             <label>用户真实姓名</label>
             <input type="text" class=" form-control" width="500px" name="real_name" placeholder="用户真实姓名">
@@ -62,14 +63,14 @@
             <label>确认密码</label>
             <input type="password" class="form-control" name="user_password2" placeholder="确认新密码">
         </div>
-        <button type="submit" class="btn btn-primary">提交</button>
+        <button type="button" class="btn btn-primary tj" >提交</button>
 
     </form>
   {% if messages %}
 <script>
-    {% for msg in messages %}
-        alert('{{ msg.message }}');
-    {% endfor %}
+{#    {% for msg in messages %}#}
+{#        alert('{{ msg.message }}');#}
+{#    {% endfor %}#}
 </script>
 {% endif %}
 

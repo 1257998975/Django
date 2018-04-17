@@ -2,13 +2,13 @@
 # 从django.http命名空间引入一个HttpResponse的类
 # 引用VMware相关库
 import base64
+import json
 from vmm.ob_vsphere import ob_vs
 import atexit
 from django.contrib import messages
 from django.http import HttpResponse
 from django.template import loader
 from pyVim import connect
-from pyVmomi import vim
 from pyVmomi import vmodl
 
 from vmm.admin import vm_obj
@@ -104,6 +104,7 @@ def listvm(request):
                             vms_obj = vm_obj()
                             vms_obj.vm_ob = vm_vc
                             vms_obj.vm_url = main(vm_vc.summary.config.instanceUuid)
+                            print(vm_vc.summary.config.instanceUuid)
                             vms_include.append(vms_obj)
             # 载入模板，传递一个集合给模板，让模板渲染成html返回
             tp = loader.get_template("front/list.html")
@@ -191,16 +192,20 @@ def modify(request):
                     db_info_renew.isadmin = False
                     db_info_renew.is_active = True
                     db_info_renew.save()
-                    data={"data":"修改成功"}
-                    #messages.add_message(request,messages.SUCCESS ,'修改成功')
+
+                    data={"status": "修改成功"}
                     return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
-                    #return "修改成功"
+
+
                 else:
-                    return HttpResponse("密码不匹配")
+                    data = {"status": "密码不匹配"}
+                    return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
             else:
-                return HttpResponse("该账号不存在")
+                data = {"status": "该账号不存在"}
+                return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
         else:
-            return HttpResponse("输入错误字段")
+            data = {"status": "输入错误字段"}
+            return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
     else:
         tp = loader.get_template("front/modify.html")
         html = tp.render()
@@ -241,3 +246,46 @@ def main(vmuuid):
     # url="http://vc的ip:7331/console/?vmId={2}&vmName={3}&host={4}&sessionTicket={5}&thumbprint={6}".format("",console_port,vm_moid,vmip,"172.16.3.141",session,vc_fingerprint.decode())
     url = "vmrc://clone:" + session + "@172.16.3.141/?moid=" + vm_moid
     return url
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def scene_update_view(request):
+    if request.method == "POST":
+            name = request.POST.get('name')
+            status = 0
+            result = "Error!"
+            return HttpResponse(json.dumps({
+                "status": status,
+                "result": result
+            }))

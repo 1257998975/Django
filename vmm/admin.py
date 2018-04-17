@@ -3,10 +3,12 @@ from __future__ import unicode_literals
 
 # 引用VMware相关库
 import atexit
-
+from django.http import HttpResponseRedirect
 import simplejson
 # 从django.http命名空间引入一个HttpResponse的类
 from login import login
+from login import isadmin_user_info
+import login
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
@@ -31,7 +33,7 @@ from  vmm.ob_vsphere import ob_vs
 
 
 def index(request):
-    if request.session.get('user_id'):
+    if request.session.get('user_id') and isadmin_user_info(request.session.get('user_id')):
         vms_list = ob_vs.vmlist()  # 执行查找
         j = 0
         i = 0
@@ -44,10 +46,10 @@ def index(request):
         html = tp.render({"running": i, "vms": j})
         return HttpResponse(html)
     else:
-        return HttpResponse("error!")
+        return HttpResponseRedirect("/login")
 
 
-# ---------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------
 
 '''
 （1）显示所有的虚拟机列表
@@ -82,7 +84,7 @@ def listvm(request):
         except vmodl.MethodFault as error:
             return HttpResponse("Caught vmodl fault : " + error.msg)
     else:
-        login(request)
+        return HttpResponseRedirect("/login")
 
 
 # -----------------------------------------------------------------------------------------------
@@ -199,7 +201,8 @@ def power(request):
     action = si.content.searchIndex.FindByUuid(None, uuid, True, True)
     data = {"type": op_type}
     input_id = uuid
-    db_info_renew = users.objects.get(vm_uuid=input_id)
+    db_info_renew = vms.objects.get(vm_uuid=input_id)
+
     if op_type == '0':  # 关机
         action.ShutdownGuest()
         db_info_renew.vm_power = 0
@@ -261,13 +264,17 @@ def modify(request):
                     db_info_renew.isadmin = False
                     db_info_renew.is_active = True
                     db_info_renew.save()
-                    return HttpResponse("修改成功")
+                    data = {"status": "修改成功"}
+                    return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
                 else:
-                    return HttpResponse("密码不匹配")
+                    data = {"status": "密码不匹配"}
+                    return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
             else:
-                return HttpResponse("该账号不存在")
+                data = {"status": "该账号不存在"}
+                return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
         else:
-            return HttpResponse("输入错误字段")
+            data = {"status": "输入错误字段"}
+            return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
     else:
         tp = loader.get_template("backend/modify.html")
         html = tp.render()
