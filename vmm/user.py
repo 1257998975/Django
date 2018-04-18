@@ -65,8 +65,8 @@ def index(request):
                     if vm_sq.vm_power == 1:
                         j += 1
         except:
-            i=0
-            j=0
+            i = 0
+            j = 0
         tp = loader.get_template("front/index.html")
         html = tp.render({"count": i, "vms": j})
         return HttpResponse(html)
@@ -82,10 +82,10 @@ def index(request):
 '''
 
 
-def profile(request):
-    tp = loader.get_template("front/profile.html")
-    html = tp.render({"count": 1, "vms": 2})
-    return HttpResponse(html)
+# def profile(request):
+#     tp = loader.get_template("front/profile.html")
+#     html = tp.render({"count": 1, "vms": 2})
+#     return HttpResponse(html)
 
 
 def listvm(request):
@@ -113,9 +113,7 @@ def listvm(request):
         except vmodl.MethodFault as error:
             return HttpResponse("Caught vmodl fault : " + error.msg)
     else:
-        tp = loader.get_template("front/list.html")
-        html = tp.render()
-        return HttpResponse("页面未找到！")
+        return HttpResponseRedirect("/login")
 
 
 '''
@@ -178,34 +176,37 @@ def createvm(request):
 # 修改个人信息
 def modify(request):
     if request.method == 'POST':
-        regist_info = user_modify(request.POST)
-        if regist_info.is_valid():
-            input_id =request.session.get("user_id")
-            db_user_id = users.objects.filter(user_id=input_id)
-            if db_user_id:
-                if regist_info.cleaned_data["user_password1"] == regist_info.cleaned_data["user_password2"]:
-                    db_info_renew = users.objects.get(user_id=input_id)
-                    db_info_renew.real_name = regist_info.cleaned_data["real_name"]
-                    db_info_renew.user_password = base64.encodestring(regist_info.cleaned_data["user_password1"])
-                    db_info_renew.email = regist_info.cleaned_data["email"]
-                    db_info_renew.mobile = regist_info.cleaned_data["mobile"]
-                    db_info_renew.isadmin = False
-                    db_info_renew.is_active = True
-                    db_info_renew.save()
+        if request.session.get('user_id'):
+            regist_info = user_modify(request.POST)
+            if regist_info.is_valid():
+                input_id = request.session.get("user_id")
+                db_user_id = users.objects.filter(user_id=input_id)
+                if db_user_id:
+                    if regist_info.cleaned_data["user_password1"] == regist_info.cleaned_data["user_password2"]:
+                        db_info_renew = users.objects.get(user_id=input_id)
+                        db_info_renew.real_name = regist_info.cleaned_data["real_name"]
+                        db_info_renew.user_password = base64.encodestring(regist_info.cleaned_data["user_password1"])
+                        db_info_renew.email = regist_info.cleaned_data["email"]
+                        db_info_renew.mobile = regist_info.cleaned_data["mobile"]
+                        db_info_renew.isadmin = False
+                        db_info_renew.is_active = True
+                        db_info_renew.save()
 
-                    data={"status": "修改成功"}
-                    return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
+                        data = {"status": "修改成功"}
+                        return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
 
 
+                    else:
+                        data = {"status": "密码不匹配"}
+                        return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
                 else:
-                    data = {"status": "密码不匹配"}
+                    data = {"status": "该账号不存在"}
                     return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
             else:
-                data = {"status": "该账号不存在"}
+                data = {"status": "输入错误字段"}
                 return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
         else:
-            data = {"status": "输入错误字段"}
-            return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
+            return HttpResponseRedirect("/login")
     else:
         tp = loader.get_template("front/modify.html")
         html = tp.render()
@@ -214,7 +215,7 @@ def modify(request):
 
 # 获取某虚拟机的url
 def main(vmuuid):
-    si =ob_vs.si
+    si = ob_vs.si
     atexit.register(connect.Disconnect, si)
     content = si.RetrieveContent()
     container = content.rootFolder  # 从哪查找
@@ -246,46 +247,3 @@ def main(vmuuid):
     # url="http://vc的ip:7331/console/?vmId={2}&vmName={3}&host={4}&sessionTicket={5}&thumbprint={6}".format("",console_port,vm_moid,vmip,"172.16.3.141",session,vc_fingerprint.decode())
     url = "vmrc://clone:" + session + "@172.16.3.141/?moid=" + vm_moid
     return url
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def scene_update_view(request):
-    if request.method == "POST":
-            name = request.POST.get('name')
-            status = 0
-            result = "Error!"
-            return HttpResponse(json.dumps({
-                "status": status,
-                "result": result
-            }))

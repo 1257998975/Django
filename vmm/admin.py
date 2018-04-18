@@ -25,7 +25,7 @@ from vmm.model.models import vms
 from vmm.back import creat
 from vmm.model.forms import user_regist
 from vmm.back import config
-from  vmm.ob_vsphere import ob_vs
+from vmm.ob_vsphere import ob_vs
 
 '''
 定义一个方法，处理用户的管理员登录！
@@ -48,8 +48,8 @@ def index(request):
     else:
         return HttpResponseRedirect("/login")
 
-
     # ---------------------------------------------------------------------------------------------------------------
+
 
 '''
 （1）显示所有的虚拟机列表
@@ -57,8 +57,7 @@ def index(request):
 
 
 def listvm(request):
-
-    if request.session.get('user_id'):
+    if request.session.get('user_id') and isadmin_user_info(request.session.get('user_id')):
         try:
             vm_infor = vms.objects.all()  # 获得vms表单信息
             user_info = users.objects.all()  # 获得users表单信息
@@ -96,7 +95,7 @@ def listvm(request):
 
 
 def createvm(request):
-    if request.session.get('user_id'):
+    if request.session.get('user_id') and isadmin_user_info(request.session.get('user_id')):
         if request.method == 'POST':  # 当提交表单时
             vm_regist_info = vm_regist(request.POST)  # form 包含提交的数据
             if vm_regist_info.is_valid():  # 如果提交的数据合法
@@ -137,7 +136,7 @@ def createvm(request):
 
 # 申请管理页面
 def dispapp(request):
-    if request.session.get('user_id'):
+    if request.session.get('user_id') and isadmin_user_info(request.session.get('user_id')):
         if request.method == 'POST':
             input_id = request.GET.get('id')
             op_type = request.GET.get('type')
@@ -176,7 +175,7 @@ def dispapp(request):
             html = tp.render({"vms": vms_include})
             return HttpResponse(html)
     else:
-        login(request)
+        return HttpResponseRedirect("/login")
 
 
 # -----------------------------------------------------------------------------------------------
@@ -225,23 +224,26 @@ def power(request):
 
 
 def profile(request):
-    vm_infor = vms.objects.all()  # 获得vms表单信息
-    user_info = users.objects.all()  # 获得users表单信息
-    users_ob = []  # 存放信息列表
-    if user_info:
-        for user in user_info:
-            if user.user_password != "":
-                user_ob = vm_obj()
-                user_ob.user = user
-                vms_ob = []
-                for vm in vm_infor:
-                    if (vm.vm_user_id == user.user_id):
-                        vms_ob.append(vm)
-                user_ob.vm_list = vms_ob
-                users_ob.append(user_ob)
-    tp = loader.get_template("backend/profile.html")
-    html = tp.render({"users": users_ob})
-    return HttpResponse(html)
+    if request.session.get('user_id') and isadmin_user_info(request.session.get('user_id')):
+        vm_infor = vms.objects.all()  # 获得vms表单信息
+        user_info = users.objects.all()  # 获得users表单信息
+        users_ob = []  # 存放信息列表
+        if user_info:
+            for user in user_info:
+                if user.user_password != "":
+                    user_ob = vm_obj()
+                    user_ob.user = user
+                    vms_ob = []
+                    for vm in vm_infor:
+                        if (vm.vm_user_id == user.user_id):
+                            vms_ob.append(vm)
+                    user_ob.vm_list = vms_ob
+                    users_ob.append(user_ob)
+        tp = loader.get_template("backend/profile.html")
+        html = tp.render({"users": users_ob})
+        return HttpResponse(html)
+    else:
+        return HttpResponseRedirect("/login")
 
 
 # --------------------------------------------------------------------------------------------------------
@@ -249,36 +251,39 @@ def profile(request):
 
 # 修改个人信息
 def modify(request):
-    if request.method == 'POST':
-        regist_info = user_regist(request.POST)
-        if regist_info.is_valid():
-            input_id =request.session.get("user_id")
-            db_user_id = users.objects.filter(user_id=input_id)
-            if db_user_id:
-                if regist_info.cleaned_data["user_password1"] == regist_info.cleaned_data["user_password2"]:
-                    db_info_renew = users.objects.get(user_id=input_id)
-                    db_info_renew.real_name = regist_info.cleaned_data["real_name"]
-                    db_info_renew.user_password = regist_info.cleaned_data["user_password1"]
-                    db_info_renew.email = regist_info.cleaned_data["email"]
-                    db_info_renew.mobile = regist_info.cleaned_data["mobile"]
-                    db_info_renew.isadmin = False
-                    db_info_renew.is_active = True
-                    db_info_renew.save()
-                    data = {"status": "修改成功"}
-                    return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
+    if request.session.get('user_id') and isadmin_user_info(request.session.get('user_id')):
+        if request.method == 'POST':
+            regist_info = user_regist(request.POST)
+            if regist_info.is_valid():
+                input_id = request.session.get("user_id")
+                db_user_id = users.objects.filter(user_id=input_id)
+                if db_user_id:
+                    if regist_info.cleaned_data["user_password1"] == regist_info.cleaned_data["user_password2"]:
+                        db_info_renew = users.objects.get(user_id=input_id)
+                        db_info_renew.real_name = regist_info.cleaned_data["real_name"]
+                        db_info_renew.user_password = regist_info.cleaned_data["user_password1"]
+                        db_info_renew.email = regist_info.cleaned_data["email"]
+                        db_info_renew.mobile = regist_info.cleaned_data["mobile"]
+                        db_info_renew.isadmin = False
+                        db_info_renew.is_active = True
+                        db_info_renew.save()
+                        data = {"status": "修改成功"}
+                        return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
+                    else:
+                        data = {"status": "密码不匹配"}
+                        return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
                 else:
-                    data = {"status": "密码不匹配"}
+                    data = {"status": "该账号不存在"}
                     return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
             else:
-                data = {"status": "该账号不存在"}
+                data = {"status": "输入错误字段"}
                 return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
         else:
-            data = {"status": "输入错误字段"}
-            return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
+            tp = loader.get_template("backend/modify.html")
+            html = tp.render()
+            return HttpResponse(html)
     else:
-        tp = loader.get_template("backend/modify.html")
-        html = tp.render()
-        return HttpResponse(html)
+        return HttpResponseRedirect("/login")
 
 
 def dealapp(request):
