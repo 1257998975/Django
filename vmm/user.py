@@ -71,7 +71,7 @@ def index(request):
         html = tp.render({"count": i, "vms": j})
         return HttpResponse(html)
     else:
-        return HttpResponse("error!")
+        return HttpResponseRedirect("/login")
 
 
 # -----------------------------------------------------------------------------------------------------
@@ -175,8 +175,9 @@ def createvm(request):
 
 # 修改个人信息
 def modify(request):
-    if request.method == 'POST':
-        if request.session.get('user_id'):
+    if request.session.get('user_id'):
+        if request.method == 'POST':
+
             regist_info = user_modify(request.POST)
             if regist_info.is_valid():
                 input_id = request.session.get("user_id")
@@ -205,12 +206,13 @@ def modify(request):
             else:
                 data = {"status": "输入错误字段"}
                 return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
+
         else:
-            return HttpResponseRedirect("/login")
+            tp = loader.get_template("front/modify.html")
+            html = tp.render()
+            return HttpResponse(html)
     else:
-        tp = loader.get_template("front/modify.html")
-        html = tp.render()
-        return HttpResponse(html)
+        return HttpResponseRedirect("/login")
 
 
 # 获取某虚拟机的url

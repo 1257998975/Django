@@ -119,6 +119,7 @@ def login(request):
 
 def logout(request):
     try:
+        request.session['user_id'] =None
         del request.session['user_id']
         data = {"ok": "true"}
         # return HttpResponseRedirect('/login/')  # 跳转到index界面
