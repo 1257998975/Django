@@ -3,7 +3,7 @@
 # 引用VMware相关库
 import base64
 import json
-from vmm.ob_vsphere import ob_vs
+from vmm.class_ob import ob_vs
 import atexit
 from django.contrib import messages
 from django.http import HttpResponse
@@ -130,7 +130,9 @@ def createvm(request):
                 try:
                     input_name = vm_regist_info.cleaned_data["vm_name"]
                     db_vm_name = vms.objects.filter(vm_name=input_name)
-                    if (db_vm_name) & db_vm_name.values_list("vm_enabled") == 1:
+
+
+                    if db_vm_name.values_list("vm_enabled") == 1:
                         return HttpResponse("该名称已存在")
                     else:
 
@@ -177,6 +179,7 @@ def modify(request):
         if request.method == 'POST':
 
             regist_info = user_modify(request.POST)
+
             if regist_info.is_valid():
                 input_id = request.session.get("user_id")
                 db_user_id = users.objects.filter(user_id=input_id)

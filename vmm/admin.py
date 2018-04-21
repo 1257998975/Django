@@ -25,7 +25,7 @@ from vmm.model.models import vms
 from vmm.back import creat
 from vmm.model.forms import user_regist
 from vmm.back import config
-from vmm.ob_vsphere import ob_vs
+from vmm.class_ob import ob_vs
 
 '''
 定义一个方法，处理用户的管理员登录！
@@ -103,7 +103,7 @@ def createvm(request):
 
                 input_name = vm_regist_info.cleaned_data["vm_name"]
                 db_vm_name = vms.objects.filter(vm_name=input_name)
-                if (db_vm_name) & db_vm_name.values_list("vm_enabled") == 1:
+                if db_vm_name.values_list("vm_enabled") == 1:
                     return HttpResponse("该名称已存在")
                 else:
 
