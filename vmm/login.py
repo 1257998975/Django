@@ -23,7 +23,7 @@ from vmm.model.models import users
 from vmm.model.token import Token
 import thread
 import time
-
+from vmm.back import autoupdate
 # 验证码模块
 
 reload(sys)
@@ -66,11 +66,10 @@ def isadmin_user_info(id):
 
 # 登录视图
 def login(request):
-    # try:
-    #     thread.start_new_thread(print_time, ("Thread-1", 2,))
-    #     thread.start_new_thread(print_time, ("Thread-2", 4,))
-    # except:
-    #     print "Error: unable to start thread"
+    try:
+        thread.start_new_thread(autoupdate, ( 1000))
+    except:
+        print "Error: unable to start thread"
 
     if request.method == 'POST':
         login_info = user_login(request.POST)
@@ -235,9 +234,4 @@ that sent to the register email,user can login the site normally.
     html = tp.render()
     return HttpResponse(html)
 
-def print_time( threadName, delay):
-   count = 0
-   while 1:
-      time.sleep(delay)
-      count += 1
-      print "%s: %s" % ( threadName, time.ctime(time.time()) )
+

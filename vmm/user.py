@@ -93,7 +93,6 @@ def listvm(request):
     if user_id:
         try:
             # 连接vcenter服务器
-
             vms_list = ob_vs.vmlist()  # 执行查找
             vm_infor = vms.objects.all()  # 获得vms表单信息
             vms_include = []  # 用于打包虚拟机列表及其使用者
@@ -104,7 +103,6 @@ def listvm(request):
                             vms_obj = vm_obj()
                             vms_obj.vm_ob = vm_vc
                             vms_obj.vm_url = main(vm_vc.summary.config.instanceUuid)
-                            print(vm_vc.summary.config.instanceUuid)
                             vms_include.append(vms_obj)
             # 载入模板，传递一个集合给模板，让模板渲染成html返回
             tp = loader.get_template("front/list.html")

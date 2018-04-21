@@ -202,9 +202,9 @@ def power(request):
     data = {"type": op_type}
     input_id = uuid
     db_info_renew = vms.objects.get(vm_uuid=input_id)
-
     if op_type == '0':  # 关机
         action.ShutdownGuest()
+        print(action)
         db_info_renew.vm_power = 0
         db_info_renew.save()
     elif op_type == '1':  # 开机

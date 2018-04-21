@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # 导入vSphere SDK模块
 import atexit
+import time
 from vmm.ob_vsphere import ob_vs
 from django.http import HttpResponse
 from django.template import loader
@@ -12,7 +13,9 @@ from vmm.model.token import Token
 from vmm.model.forms import vm_regist
 from django.conf import settings
 from vmm.model.models import users
-#-------------------------------------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------------------------------------
 # 创建虚拟机
 def wait_for_task(task):
     """ wait for a vCenter task to finish """
@@ -89,8 +92,8 @@ def clone_vm(
 
 
 def creat(vm):
-    os=vm.vm_os
-    name=vm.vm_name
+    os = vm.vm_os
+    name = vm.vm_name
     """
     Let this thing fly
     """
@@ -106,32 +109,28 @@ def creat(vm):
     vms_list = containerView.view  # 执行查找
     # db_info_renew = vms.objects.get(user_id=input_id)
 
-
-
     content = si.RetrieveContent()
     template = None
 
     template = get_obj(content, [vim.VirtualMachine], os)
 
+    print(template)
+
     if template:
-        x=clone_vm(
-            content, template,name , si,
+        x = clone_vm(
+            content, template, name, si,
             "Datacenter", "auto_regist",
             "", "Server3,4,5",
-            "test", 0)
-        print (x)
+            "", 0)
         return True
     else:
         return False
 
 
+# ------------------------------------------------------------------------------------------------------------
 
 
-#------------------------------------------------------------------------------------------------------------
-
-
-
-#修改虚拟机配置
+# 修改虚拟机配置
 def config(vm):
     """
     Let this thing fly
@@ -165,9 +164,48 @@ def config(vm):
     return False
 
 
+# 更新数据库
+def autoupdate(delay):
+    while 1:
+        vms_list = ob_vs.vmlist()  # 执行查找
+        vm_infor = vms.objects.all()  # 获得vms表单信息
+        for vml in vms_list:
+            vm_ob = vms.objects.filter(vm_uuid=vml.summary.config.instanceUuid)
+            if (vm_ob):
+                vm_ob.vm_name = vml.vm_ob.summary.config.name
+                if (vml.vm_ob.guest.guestFamily == "windowsGuest"):
+                    vm_ob.vm_os = "Windows"
+                    vm_ob.vm_os_admin = 1
+                else:
+                    vm_ob.vm_os = "Linux"
+                    vm_ob.vm_os_admin = 0
+                vm_ob.vm_type = 0
+                vm_ob.vm_ip = vml.vm_ob.summary.guest.ipAddress
+                vm_ob.vm_cpu = vml.vm_ob.summary.runtime.maxCpuUsage
+                vm_ob.vm_memory = vml.vm_ob.summary.runtime.maxMemoryUsage
+                if (len(vml.vm_ob.summary.runtime.powerState) > 9):
+                    vm_ob.vm_power = 0
+                else:
+                    vm_ob.vm_power = 1
+            else:
+                if (vml.vm_ob.guest.guestFamily == "windowsGuest"):
+                    a_vm_os = "Windows"
+                    a_vm_os_admin = 1
+                else:
+                    a_vm_os = "Linux"
+                    a_vm_os_admin = 0
+                vms.objects.create(vm_user_id="root", vm_name=vml.vm_ob.summary.config.name,
+                                   vm_os=a_vm_os, vm_cpu=vml.vm_ob.summary.runtime.maxCpuUsage,
+                                   vm_memory=vml.vm_ob.summary.runtime.maxMemoryUsage,
+                                   vm_os_admin=a_vm_os_admin, vm_type=1, vm_ip=vml.vm_ob.summary.guest.ipAddress,
+                                   vm_uuid=vml.summary.config.instanceUuid)
 
-
-
-
-
-
+        for vmi in vm_infor:
+            k = False
+            for vml in vms_list:
+                if (vml.summary.config.instanceUuid == vmi.vm_uuid):
+                    k = True
+                    continue
+            if (not k):
+                vmi.delete()
+        time.sleep(delay)
