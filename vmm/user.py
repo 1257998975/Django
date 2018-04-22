@@ -131,8 +131,13 @@ def createvm(request):
                     input_name = vm_regist_info.cleaned_data["vm_name"]
                     db_vm_name = vms.objects.filter(vm_name=input_name)
 
-
-                    if db_vm_name.values_list("vm_enabled") == 1:
+                    for vm_enabled in db_vm_name.values_list("vm_enabled"):
+                        if(vm_enabled==(1,)):
+                            k=True
+                            break
+                        else:
+                            k=False
+                    if k:
                         return HttpResponse("该名称已存在")
                     else:
 
@@ -146,7 +151,7 @@ def createvm(request):
                         a_vm_memory = vm_regist_info.cleaned_data["vm_memory"]
                         vm = vms.objects.create(vm_user_id=a_vm_user_id, vm_name=a_vm_name, vm_purpose=a_vm_purpose,
                                                 vm_os=a_vm_os, vm_cpu=a_vm_cpu, vm_disks=a_vm_disk,
-                                                vm_memory=a_vm_memory,
+                                                vm_memory=a_vm_memory,vm_enabled=0,
                                                 vm_os_admin=1, vm_type=a_vm_type)
 
                         from_email = settings.DEFAULT_FROM_EMAIL  # 邮件参数位于settings.py

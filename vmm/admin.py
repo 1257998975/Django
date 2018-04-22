@@ -103,7 +103,13 @@ def createvm(request):
 
                 input_name = vm_regist_info.cleaned_data["vm_name"]
                 db_vm_name = vms.objects.filter(vm_name=input_name)
-                if db_vm_name.values_list("vm_enabled") == 1:
+                for vm_enabled in db_vm_name.values_list("vm_enabled"):
+                    if (vm_enabled == (1,)):
+                        k = True
+                        break
+                    else:
+                        k = False
+                if k:
                     return HttpResponse("该名称已存在")
                 else:
 
@@ -143,6 +149,7 @@ def dispapp(request):
             op_type = request.GET.get('type')
             db_info_renew = vms.objects.get(vm_id=input_id)
             db_info_renew.vm_dispose = True
+            db_info_renew.vm_enabled=1
             db_info_renew.save()
             if op_type == "1":
                 if creat(db_info_renew) & config(db_info_renew):
