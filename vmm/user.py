@@ -166,11 +166,14 @@ def createvm(request):
                             if user.isadmin:
                                 msg = EmailMultiAlternatives("虚拟机申请", message, from_email, [user.email])
                                 msg.send()
-                        return HttpResponse("成功提交申请，请等待管理员同意")
+                        data = {"status": "成功提交申请，请等待管理员同意"}
+                        return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
+                       
                 except vmodl.MethodFault as error:
                     return HttpResponse("Caught vmodl fault : " + error.msg)
             else:
-                return HttpResponse("输入错误")
+                data = {"status": "输入错误字段"}
+                return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
         else:  # 当正常访问时
             vm_regist_info = vm_regist()
         return render(request, 'front/applicate.html', {'form': vm_regist_info})
