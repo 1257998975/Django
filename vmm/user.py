@@ -168,7 +168,7 @@ def createvm(request):
                                 msg.send()
                         data = {"status": "成功提交申请，请等待管理员同意"}
                         return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
-                       
+
                 except vmodl.MethodFault as error:
                     return HttpResponse("Caught vmodl fault : " + error.msg)
             else:

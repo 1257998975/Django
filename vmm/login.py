@@ -24,7 +24,6 @@ from vmm.model.token import Token
 import thread
 import time
 from vmm.back import autoupdate
-from vmm.back import print_time
 # 验证码模块
 
 reload(sys)
@@ -67,10 +66,10 @@ def isadmin_user_info(id):
 
 # 登录视图
 def login(request):
-    # try:
-    #     thread.start_new_thread(autoupdate, ( 5,))
-    # except:
-    #     print "Error: unable to start thread"
+    try:
+        thread.start_new_thread(autoupdate, ( 5,))
+    except:
+        print "Error: unable to start thread"
 
     if request.method == 'POST':
         login_info = user_login(request.POST)

@@ -61,20 +61,16 @@ def clone_vm(
     # if none git the first one
     datacenter = get_obj(content, [vim.Datacenter], datacenter_name)
 
-
     if vm_folder:
         destfolder = get_obj(content, [vim.Folder], vm_folder)
     else:
         destfolder = datacenter.vmFolder
-
 
     if datastore_name:
         datastore = get_obj(content, [vim.Datastore], datastore_name)
     else:
         datastore = get_obj(
             content, [vim.Datastore], template.datastore[0].info.name)
-
-
 
     # if None, get the first one
     cluster = get_obj(content, [vim.ClusterComputeResource], cluster_name)
@@ -162,56 +158,60 @@ def config(vm):
 
 
 # 更新数据库
-def autoupdate( delay):
-    while 1:
-        print(1)
-        vms_list = ob_vs.vmlist()  # 执行查找
-        vm_infor = vms.objects.all()  # 获得vms表单信息
-        for vml in vms_list:
-            vm_ob = vms.objects.filter(vm_uuid=vml.summary.config.instanceUuid)
-            if (vm_ob):
-                vm_ob.vm_name = vml.vm_ob.summary.config.name
-                if (vml.vm_ob.guest.guestFamily == "windowsGuest"):
-                    vm_ob.vm_os = "Windows"
-                    vm_ob.vm_os_admin = 1
-                else:
-                    vm_ob.vm_os = "Linux"
-                    vm_ob.vm_os_admin = 0
-                vm_ob.vm_type = 0
-                vm_ob.vm_ip = vml.vm_ob.summary.guest.ipAddress
-                vm_ob.vm_cpu = vml.vm_ob.summary.runtime.maxCpuUsage
-                vm_ob.vm_memory = vml.vm_ob.summary.runtime.maxMemoryUsage
-                if (len(vml.vm_ob.summary.runtime.powerState) > 9):
-                    vm_ob.vm_power = 0
-                else:
-                    vm_ob.vm_power = 1
+def autoupdate(delay):
+    vms_list = ob_vs.vmlist()  # 执行查找
+    vm_infor = vms.objects.all()  # 获得vms表单信息
+    for vml in vms_list:
+        vm_ob = vms.objects.get(vm_uuid=vml.summary.config.instanceUuid)
+        if (vm_ob):
+            vm_ob.vm_name = vml.summary.config.name
+
+            if (vml.guest.guestFamily == "windowsGuest"):
+                vm_ob.vm_os = "Windows"
+                vm_ob.vm_os_admin = 1
+            elif(vml.guest.guestFamily ==None):
+                vm_ob.vm_os = None
+                vm_ob.vm_os_admin = 0
             else:
-                if (vml.guest.guestFamily == "windowsGuest"):
-                    a_vm_os = "Windows"
-                    a_vm_os_admin = 1
-                else:
-                    a_vm_os = "Linux"
-                    a_vm_os_admin = 0
-                vms.objects.create(vm_user_id="root", vm_name=vml.summary.config.name,
-                                   vm_os=a_vm_os, vm_cpu=vml.summary.runtime.maxCpuUsage,
-                                   vm_memory=vml.summary.runtime.maxMemoryUsage,
-                                   vm_os_admin=a_vm_os_admin, vm_type=1, vm_ip=vml.summary.guest.ipAddress,
-                                   vm_uuid=vml.summary.config.instanceUuid)
+                vm_ob.vm_os = "Linux"
+                vm_ob.vm_os_admin = 0
+            vm_ob.vm_type = 0
+            vm_ob.vm_ip = vml.summary.guest.ipAddress
+            vm_ob.vm_cpu = vml.summary.runtime.maxCpuUsage
+            vm_ob.vm_memory = vml.summary.runtime.maxMemoryUsage
+            if (len(vml.summary.runtime.powerState) > 9):
+                vm_ob.vm_power = 0
+            else:
+                vm_ob.vm_power = 1
+            vm_ob.save()
+        else:
+            if (len(vml.summary.runtime.powerState) > 9):
+                a_vm_power = 0
+            else:
+                a_vm_power = 1
+            if (vml.guest.guestFamily == "windowsGuest"):
+                a_vm_os = "Windows"
+                a_vm_admin = 1
+            else:
+                a_vm_os = "Linux"
+                a_vm_admin = 0
+            vms.objects.create(vm_user_id="root", vm_name=vml.summary.config.name,
+                               vm_os=a_vm_os, vm_cpu=vml.summary.runtime.maxCpuUsage,
+                               vm_memory=vml.summary.runtime.maxMemoryUsage,
+                               vm_os_admin=a_vm_admin, vm_type=0, vm_ip=vml.summary.guest.ipAddress,
+                               vm_uuid=vml.summary.config.instanceUuid,vm_power=a_vm_power)
+    for vmi in vm_infor:
+        k = False
+        for vml in vms_list:
+            if (vml.summary.config.instanceUuid == vmi.vm_uuid):
+                k = True
+                continue
+        if (not k):
+            vmi.delete()
 
-        for vmi in vm_infor:
-            k = False
-            for vml in vms_list:
-                if (vml.summary.config.instanceUuid == vmi.vm_uuid):
-                    k = True
-                    continue
-            if (not k):
-                vmi.delete()
-        time.sleep(delay)
-
-
-def print_time( delay):
-    count = 0
-    while count < 5:
-        time.sleep(delay)
-        count += 1
-        print (1)
+# def print_time( delay):
+#     count = 0
+#     while count < 5:
+#         time.sleep(delay)
+#         count += 1
+#         print (1)

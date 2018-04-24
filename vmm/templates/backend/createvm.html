@@ -4,7 +4,8 @@
     <link rel="stylesheet" type="text/css" href="/static/css/style.css">
 {% endblock %}
 {% block title %}创建虚拟机{% endblock %}
-    {% block page_js %}<script type="text/javascript" src="/static/js/common.js"></script>{% endblock %}
+    {% block page_js %}<script type="text/javascript" src="/static/js/common.js"></script>
+     <script type="text/javascript" src="/static/js/create.js"></script>{% endblock %}
 
 {% block block_mnt_create %}<a style="color: #43a047" href="/backend/createvm">创建虚拟机</a>{% endblock %}
 
@@ -69,7 +70,7 @@
             <label>虚拟机用途</label>
             <textarea name="vm_purpose" class="form-control" rows="2" placeholder="For Study..."></textarea>
         </div>
-      <button type="submit" class="btn btn-primary">提交</button>
+      <button type="submit" class="btn btn-primary create">提交</button>
     </form>
 </div>
 {% endblock %}
