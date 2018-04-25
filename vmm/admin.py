@@ -103,12 +103,13 @@ def createvm(request):
 
                 input_name = vm_regist_info.cleaned_data["vm_name"]
                 db_vm_name = vms.objects.filter(vm_name=input_name)
+                k = False
                 for vm_enabled in db_vm_name.values_list("vm_enabled"):
                     if (vm_enabled == (1,)):
                         k = True
                         break
-                    else:
-                        k = False
+
+
                 if k:
                     return HttpResponse("该名称已存在")
                 else:

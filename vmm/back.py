@@ -203,7 +203,7 @@ def autoupdate(delay):
     for vmi in vm_infor:
         k = False
         for vml in vms_list:
-            if (vml.summary.config.instanceUuid == vmi.vm_uuid):
+            if (vml.summary.config.instanceUuid == vmi.vm_uuid and vmi.vm_dispose==0):
                 k = True
                 continue
         if (not k):
