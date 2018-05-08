@@ -44,8 +44,9 @@ def index(request):
                 i+=1
             if(vm.vm_dispose==0):
                 c+=1
+        user = users.objects.get(user_id=request.session['user_id'])
         tp = loader.get_template("backend/index.html")
-        html = tp.render({"running": i, "vms": j,"dispose":c,"username":request.session['user_id']})
+        html = tp.render({"running": i, "vms": j,"dispose":c,"username":user.real_name})
         return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -79,8 +80,9 @@ def listvm(request):
                     vms_obj.enabled = ""
                 vms_include.append(vms_obj)
             # 载入模板，传递一个集合给模板，让模板渲染成html返回
+            user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("backend/list.html")
-            html = tp.render({"vms": vms_include,"username":request.session['user_id']})
+            html = tp.render({"vms": vms_include,"username":user.real_name})
             return HttpResponse(html)
         except vmodl.MethodFault as error:
             return HttpResponse("Caught vmodl fault : " + error.msg)
@@ -178,12 +180,14 @@ def dispapp(request):
                             vms_obj.enabled = vm_sq.vm_enabled
                             break
                     vms_include.append(vms_obj)
+            user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("backend/disapp.html")
-            html = tp.render({"vms": vms_include})
+            html = tp.render({"vms": vms_include,"username":user.real_name})
             return HttpResponse(html)
         else:
+            user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("backend/disapp.html")
-            html = tp.render({"vms": vms_include})
+            html = tp.render({"vms": vms_include,"username":user.real_name})
             return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -214,7 +218,6 @@ def power(request):
     db_info_renew = vms.objects.get(vm_uuid=input_id)
     if op_type == '0':  # 关机
         action.ShutdownGuest()
-        print(action)
         db_info_renew.vm_power = 0
         db_info_renew.save()
     elif op_type == '1':  # 开机
@@ -250,8 +253,9 @@ def profile(request):
                             vms_ob.append(vm)
                     user_ob.vm_list = vms_ob
                     users_ob.append(user_ob)
+        user = users.objects.get(user_id=request.session['user_id'])
         tp = loader.get_template("backend/profile.html")
-        html = tp.render({"users": users_ob})
+        html = tp.render({"users": users_ob,"username":user.real_name})
         return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -290,12 +294,10 @@ def modify(request):
                 data = {"status": "输入错误字段"}
                 return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
         else:
+            user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("backend/modify.html")
-            html = tp.render()
+            html = tp.render({"username":user.real_name})
             return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
 
-
-def dealapp(request):
-    pass

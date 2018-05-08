@@ -3,7 +3,8 @@
     <link rel="stylesheet" type="text/css" href="/static/css/style.css">
 {% endblock %}
 {% block page_js %}
-    <script type="text/javascript" src="/static/js/common.js"></script>{% endblock %}
+    <script type="text/javascript" src="/static/js/common.js"></script>
+    <script type="text/javascript" src="/static/js/profile.js"></script>{% endblock %}
 
 
 
@@ -16,7 +17,7 @@
                 <tr>
                     <th width="40" class="text-center"><input type="checkbox" name="checkbox"></th>
                     <th width="50" class="text-center">工号</th>
-                    <th>姓名</th>
+                    <th width="200" class="text-center">姓名</th>
                     <th width="200" class="text-center">拥有虚拟机</th>
                     <th width="140" class="text-center">操作</th>
                 </tr>
@@ -27,25 +28,22 @@
                 {% for use in users %}
                     <tr id="r{{ forloop.counter }}">
                         <td class="text-center">
-                            <input type="checkbox" name="checkbox" value="{{ use }}">
+                            <input type="checkbox" name="checkbox" value="{{ use.user.user_id }}">
                         </td>
                         <td>{{ use.user.user_id }}</td>
                         <td class="text-center">{{ use.user.real_name }}</td>
 
                         <td class="text-center">{{ use.vm_list | length }}</td>
+                    <td class="text-center opt">
                         {% if use.user.enabled %}
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-danger btn_poweron"><i class="icon-off"></i>禁用
+                                <button type="button" class="btn btn-sm btn-danger btn_stop"><i class="icon-off"></i>禁用
                                 </button>
-                            </td>
                         {% else %}
-                           <td class="text-center">
-                                <button type="button" class="btn btn-sm btn_poweron"><i class="icon-off"></i>启用
+                                <button type="button" class="btn btn-sm btn_star"><i class="icon-off"></i>启用
                                 </button>
-                            </td>
                         {% endif %}
+                    </td>
                     </tr>
-
                 {% endfor %}
                 {% endif %}
                 </tbody>

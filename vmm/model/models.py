@@ -17,7 +17,7 @@ class users(models.Model):
     isadmin = models.BooleanField(default=False)
     comment = models.TextField(blank=True)
     isactive=models.BooleanField(default=False)
-    #enabled=models.BooleanField(default=True)c
+    enabled=models.BooleanField(default=True)
 
     def __unicode__(self):  # 在Python3中使用 def __str__(self):
         return self.user_id  # 返回这张表的主键，用于区分数据库中的不同表

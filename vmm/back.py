@@ -14,6 +14,7 @@ from vmm.model.token import Token
 from vmm.model.forms import vm_regist
 from django.conf import settings
 from vmm.model.models import users
+import simplejson
 
 
 # -------------------------------------------------------------------------------------------------
@@ -209,9 +210,32 @@ def autoupdate(delay):
         if (not k):
             vmi.delete()
 
-# def print_time( delay):
-#     count = 0
-#     while count < 5:
-#         time.sleep(delay)
-#         count += 1
-#         print (1)
+
+
+
+def profile(request):
+    uid = request.GET.get('uid')
+    op_type = request.GET.get('type')
+    data = {"type": op_type}
+    db_info_renew = users.objects.get(user_id=uid)
+    if op_type == '0':
+        db_info_renew.enabled = 0
+        db_info_renew.save()
+    elif op_type == '1':
+        db_info_renew.enabled = 1
+        db_info_renew.save()
+    return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
+
+
+def stopvm(request):
+    uuid = request.GET.get('uuid')
+    op_type = request.GET.get('type')
+    data = {"type": op_type}
+    db_info_renew = vms.objects.get(vm_uuid=uuid)
+    if op_type == '0':
+        db_info_renew.vm_enabled = 0
+        db_info_renew.save()
+    elif op_type == '1':
+        db_info_renew.vm_enabled = 1
+        db_info_renew.save()
+    return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")

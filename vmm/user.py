@@ -67,8 +67,9 @@ def index(request):
         except:
             i = 0
             j = 0
+        user = users.objects.get(user_id=request.session['user_id'])
         tp = loader.get_template("front/index.html")
-        html = tp.render({"count": i, "vms": j})
+        html = tp.render({"count": i, "vms": j,"username":user.real_name})
         return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -99,14 +100,15 @@ def listvm(request):
             for vm_sq in vm_infor:
                 if (vm_sq.vm_user_id == user_id):
                     for vm_vc in vms_list:
-                        if (vm_sq.vm_name == vm_vc.config.name):
+                        if (vm_sq.vm_name == vm_vc.config.name and vm_sq.vm_enabled):
                             vms_obj = vm_obj()
                             vms_obj.vm_ob = vm_vc
                             vms_obj.vm_url = main(vm_vc.summary.config.instanceUuid)
                             vms_include.append(vms_obj)
             # 载入模板，传递一个集合给模板，让模板渲染成html返回
+            user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("front/list.html")
-            html = tp.render({"vms": vms_include})
+            html = tp.render({"vms": vms_include,"username":user.real_name})
             return HttpResponse(html)
         except vmodl.MethodFault as error:
             return HttpResponse("Caught vmodl fault : " + error.msg)
@@ -218,8 +220,9 @@ def modify(request):
                 return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
 
         else:
+            user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("front/modify.html")
-            html = tp.render()
+            html = tp.render({"username":user.real_name})
             return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")

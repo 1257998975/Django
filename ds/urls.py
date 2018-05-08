@@ -40,12 +40,15 @@ urlpatterns = [
     url(r'^logout', vmm.login.logout),  # 退出
     url(r'^login/', vmm.login.login),
     url(r'^backend/power', vmm.admin.power),  # 电源管理
+
     url(r'^userregist', vmm.login.userregist),  # 注册账号
     url(r'^active_user/(?P<token>\w+.[-_\w]*\w+.[-_\w]*\w+)/$', vmm.login.active_user, name='active_user'),#邮件链接
 
     # -------------------------------
     url(r'^backend/index', vmm.admin.index),  # 首页
     url(r'^backend/list', vmm.admin.listvm),  # 虚拟机列表
+    url(r'^backend/pf', vmm.back.profile),  # 用户管理
+    url(r'^backend/stopvm', vmm.back.stopvm),  # 禁用虚拟机
     url(r'^backend/createvm', vmm.admin.createvm),  # 创建虚拟机
     url(r'^backend/dispapp', vmm.admin.dispapp),  # 待处理申请
     url(r'^backend/profile', vmm.admin.profile),  # 用户列表

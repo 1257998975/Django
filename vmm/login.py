@@ -41,7 +41,7 @@ def verify_user_info(id, password):
 
             db_password = str(db_info.values_list('user_password')[0][0])
             if db_password == base64.encodestring(password):
-                if db_info.values_list('isactive'):
+                if db_info.values_list('isactive')[0][0] and db_info.values_list('enabled')[0][0]:
                     return True
                 else:
                     return False  # 密码错误
@@ -92,7 +92,6 @@ def login(request):
                     return HttpResponse(simplejson.dumps(result, ensure_ascii=False), content_type="application/json")
                     # return HttpResponseRedirect('/front/index/')
             else:
-                print("用户名或密码错误！")
                 result['captcha'] = True
                 # 返回JSON格式的对象
                 return HttpResponse(simplejson.dumps(result, ensure_ascii=False), content_type="application/json")
@@ -189,7 +188,7 @@ def userregist(request):
                         db_info_renew.real_name = regist_info.cleaned_data["real_name"]
                         db_info_renew.email = regist_info.cleaned_data["email"]
                         db_info_renew.isadmin = False
-                        db_info_renew.is_active = False
+                        db_info_renew.isactive = False
                         db_info_renew.save()
                         ss = {"reg": "注册"}
                         return HttpResponse(simplejson.dumps(ss, ensure_ascii=False), content_type="application/json")

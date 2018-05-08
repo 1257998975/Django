@@ -5,6 +5,7 @@
 {% block page_js %}
     <script type="text/javascript" src="/static/js/power.js"></script>
     <script type="text/javascript" src="/static/js/common.js"></script>
+    <script type="text/javascript" src="/static/js/stopvm.js"></script>
 {% endblock %}
 {% block title %}虚拟机云管理{% endblock %}
 
@@ -48,12 +49,12 @@
                         <td class="text-center">{{ vm.vm_ob.vm_cpu }}</td>
                         <td class="text-center">{{ vm.vm_ob.vm_memory }}</td>
                         <td class="text-center">{{ vm.user }}</td>
-                        <td class="text-center">
+                        <td class="text-center stopvm">
                                 <div class="btn-group">
                                     {% if vm.enabled == 0 %}
-                                    <button type="button" class="btn btn-xs btn-primary">启用</button>
+                                    <button type="button" class="btn btn-xs btn-primary star">启用</button>
                                     {% else %}
-                                    <button type="button" class="btn btn-xs">禁用</button>
+                                    <button type="button" class="btn btn-xs stop">禁用</button>
                                 {% endif %}
                             </div>
                         </td>
