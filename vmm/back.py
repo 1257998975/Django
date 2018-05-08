@@ -162,14 +162,14 @@ def autoupdate(delay):
     vms_list = ob_vs.vmlist()  # 执行查找
     vm_infor = vms.objects.all()  # 获得vms表单信息
     for vml in vms_list:
-        vm_ob = vms.objects.get(vm_uuid=vml.summary.config.instanceUuid)
-        if (vm_ob):
+        get_vm_if = vms.objects.filter(vm_uuid=vml.summary.config.instanceUuid)
+        if get_vm_if:
+            vm_ob = vms.objects.get(vm_uuid=vml.summary.config.instanceUuid)
             vm_ob.vm_name = vml.summary.config.name
-
             if (vml.guest.guestFamily == "windowsGuest"):
                 vm_ob.vm_os = "Windows"
                 vm_ob.vm_os_admin = 1
-            elif(vml.guest.guestFamily ==None):
+            elif (vml.guest.guestFamily == None):
                 vm_ob.vm_os = None
                 vm_ob.vm_os_admin = 0
             else:
@@ -199,11 +199,11 @@ def autoupdate(delay):
                                vm_os=a_vm_os, vm_cpu=vml.summary.runtime.maxCpuUsage,
                                vm_memory=vml.summary.runtime.maxMemoryUsage,
                                vm_os_admin=a_vm_admin, vm_type=0, vm_ip=vml.summary.guest.ipAddress,
-                               vm_uuid=vml.summary.config.instanceUuid,vm_power=a_vm_power)
+                               vm_uuid=vml.summary.config.instanceUuid, vm_power=a_vm_power,vm_dispose=True)
     for vmi in vm_infor:
         k = False
         for vml in vms_list:
-            if (vml.summary.config.instanceUuid == vmi.vm_uuid and vmi.vm_dispose==0):
+            if (vml.summary.config.instanceUuid == vmi.vm_uuid or vmi.vm_dispose == 0):
                 k = True
                 continue
         if (not k):

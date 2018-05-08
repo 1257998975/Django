@@ -43,7 +43,7 @@
                 <div class="item dropdown">
 				<span data-toggle="dropdown">
 					<i class="icon icon-user"></i>
-					<span>管理员名</span>
+					{% block username %}<span>{{ username }}</span>{% endblock %}
 					<span class="caret"></span>
 				</span>
                     <ul class="dropdown-menu pull-right">
@@ -145,7 +145,7 @@
                                 <div class="content">
                                     <h4>申请</h4>
                                     <hr>
-                                    <p>待处理的申请</p>
+                                    {% block dispose %}  <p>待处理申请</p>{% endblock %}
                                 </div>
                             </div>
                             <div class="alert with-icon">

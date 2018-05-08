@@ -257,5 +257,6 @@ def main(vmuuid):
     # vc_pem = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM,vc_cert)
     # vc_fingerprint = vc_pem.digest('sha1')
     # url="http://vc的ip:7331/console/?vmId={2}&vmName={3}&host={4}&sessionTicket={5}&thumbprint={6}".format("",console_port,vm_moid,vmip,"172.16.3.141",session,vc_fingerprint.decode())
-    url = "vmrc://clone:" + session + "@172.16.3.141/?moid=" + vm_moid
+    url = "vmrc://clone:" + session + "@"+ob_vs.host+"/?moid=" + vm_moid
+    #url = "vmrc://clone:" + session + "@172.16.3.141/?moid=" + vm_moid
     return url

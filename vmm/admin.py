@@ -34,16 +34,18 @@ from vmm.class_ob import ob_vs
 
 def index(request):
     if request.session.get('user_id') and isadmin_user_info(request.session.get('user_id')):
-        vms_list = ob_vs.vmlist()  # 执行查找
-        j = 0
-        i = 0
-        for vm in vms_list:
-            if (vm.summary.runtime.powerState == "poweredOn"):
-                i += 1
-            if not vm.config.template:
-                j += 1
+        vms_ob = vms.objects.all()
+        j=0
+        i=0
+        c=0
+        for vm in vms_ob:
+            j+=1
+            if(vm.vm_power==1):
+                i+=1
+            if(vm.vm_dispose==0):
+                c+=1
         tp = loader.get_template("backend/index.html")
-        html = tp.render({"running": i, "vms": j})
+        html = tp.render({"running": i, "vms": j,"dispose":c,"username":request.session['user_id']})
         return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -78,7 +80,7 @@ def listvm(request):
                 vms_include.append(vms_obj)
             # 载入模板，传递一个集合给模板，让模板渲染成html返回
             tp = loader.get_template("backend/list.html")
-            html = tp.render({"vms": vms_include})
+            html = tp.render({"vms": vms_include,"username":request.session['user_id']})
             return HttpResponse(html)
         except vmodl.MethodFault as error:
             return HttpResponse("Caught vmodl fault : " + error.msg)
