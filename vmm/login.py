@@ -21,15 +21,15 @@ from vmm.model.forms import user_regist
 # 引用模型和表单
 from vmm.model.models import users
 from vmm.model.token import Token
-import thread
+import threading
 import time
 from vmm.back import autoupdate
 # 验证码模块
 
-reload(sys)
-sys.setdefaultencoding('utf8')
+#reload(sys)
+#sys.setdefaultencoding('utf8')
 
-token_confirm = Token(settings.SECRET_KEY)
+token_confirm = Token(str.encode(settings.SECRET_KEY))
 
 
 # 判断用户名，密码是否正确
@@ -67,9 +67,9 @@ def isadmin_user_info(id):
 # 登录视图
 def login(request):
     try:
-        thread.start_new_thread(autoupdate, ( 5,))
+        threading.start_new_thread(autoupdate, ( 5,))
     except:
-        print "Error: unable to start thread"
+        print ("Error: unable to start thread")
 
     if request.method == 'POST':
         login_info = user_login(request.POST)

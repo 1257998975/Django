@@ -6,9 +6,7 @@ import atexit
 from django.http import HttpResponseRedirect
 import simplejson
 # 从django.http命名空间引入一个HttpResponse的类
-from login import login
-from login import isadmin_user_info
-import login
+from vmm.login import isadmin_user_info
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
