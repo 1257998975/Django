@@ -69,7 +69,7 @@ def index(request):
             j = 0
         user = users.objects.get(user_id=request.session['user_id'])
         tp = loader.get_template("front/index.html")
-        html = tp.render({"count": i, "vms": j,"username":user.real_name})
+        html = tp.render({"count": i, "vms": j, "username": user.real_name})
         return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -94,21 +94,19 @@ def listvm(request):
     if user_id:
         try:
             # 连接vcenter服务器
-            vms_list = ob_vs.vmlist()  # 执行查找
+            # vms_list = ob_vs.vmlist()  # 执行查找
             vm_infor = vms.objects.all()  # 获得vms表单信息
             vms_include = []  # 用于打包虚拟机列表及其使用者
             for vm_sq in vm_infor:
-                if (vm_sq.vm_user_id == user_id):
-                    for vm_vc in vms_list:
-                        if (vm_sq.vm_name == vm_vc.config.name and vm_sq.vm_enabled):
-                            vms_obj = vm_obj()
-                            vms_obj.vm_ob = vm_vc
-                            vms_obj.vm_url = main(vm_vc.summary.config.instanceUuid)
-                            vms_include.append(vms_obj)
+                if (vm_sq.vm_user_id == user_id and vm_sq.vm_enabled and vm_sq.vm_dispose):
+                    vms_obj = vm_obj()
+                    vms_obj.vm_ob = vm_sq
+                    vms_obj.vm_url = main(vm_sq.vm_uuid)
+                    vms_include.append(vms_obj)
             # 载入模板，传递一个集合给模板，让模板渲染成html返回
             user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("front/list.html")
-            html = tp.render({"vms": vms_include,"username":user.real_name})
+            html = tp.render({"vms": vms_include, "username": user.real_name})
             return HttpResponse(html)
         except vmodl.MethodFault as error:
             return HttpResponse("Caught vmodl fault : " + error.msg)
@@ -134,10 +132,9 @@ def createvm(request):
                     db_vm_name = vms.objects.filter(vm_name=input_name)
                     k = False
                     for vm_enabled in db_vm_name.values_list("vm_enabled"):
-                        if(vm_enabled==(1,)):
-                            k=True
+                        if (vm_enabled == (1,)):
+                            k = True
                             break
-
 
                     if k:
                         data = {"status": "该名称已存在"}
@@ -154,7 +151,7 @@ def createvm(request):
                         a_vm_memory = vm_regist_info.cleaned_data["vm_memory"]
                         vm = vms.objects.create(vm_user_id=a_vm_user_id, vm_name=a_vm_name, vm_purpose=a_vm_purpose,
                                                 vm_os=a_vm_os, vm_cpu=a_vm_cpu, vm_disks=a_vm_disk,
-                                                vm_memory=a_vm_memory,vm_enabled=0,
+                                                vm_memory=a_vm_memory, vm_enabled=0,
                                                 vm_os_admin=1, vm_type=a_vm_type)
 
                         from_email = settings.DEFAULT_FROM_EMAIL  # 邮件参数位于settings.py
@@ -169,7 +166,7 @@ def createvm(request):
                             if user.isadmin:
                                 msg = EmailMultiAlternatives("虚拟机申请", message, from_email, [user.email])
                                 msg.send()
-                        data = {"status": "成功提交申请，请等待管理员同意"}
+                        data = {"status": "成功"}
                         return HttpResponse(simplejson.dumps(data, ensure_ascii=False), content_type="application/json")
 
                 except vmodl.MethodFault as error:
@@ -222,7 +219,7 @@ def modify(request):
         else:
             user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("front/modify.html")
-            html = tp.render({"username":user.real_name})
+            html = tp.render({"username": user.real_name})
             return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -260,6 +257,6 @@ def main(vmuuid):
     # vc_pem = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM,vc_cert)
     # vc_fingerprint = vc_pem.digest('sha1')
     # url="http://vc的ip:7331/console/?vmId={2}&vmName={3}&host={4}&sessionTicket={5}&thumbprint={6}".format("",console_port,vm_moid,vmip,"172.16.3.141",session,vc_fingerprint.decode())
-    url = "vmrc://clone:" + session + "@"+ob_vs.host+"/?moid=" + vm_moid
-    #url = "vmrc://clone:" + session + "@172.16.3.141/?moid=" + vm_moid
+    url = "vmrc://clone:" + session + "@" + ob_vs.host + "/?moid=" + vm_moid
+    # url = "vmrc://clone:" + session + "@172.16.3.141/?moid=" + vm_moid
     return url

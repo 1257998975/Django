@@ -239,6 +239,7 @@ $('.Fpass').click(function () {
             $(".regform").ajaxSubmit({
                 type: "POST",
                 dataType: "json", //json格式，后台返回的数据为json格式的。
+
                 success: function (result) {
                     console.log(result);
                 }
