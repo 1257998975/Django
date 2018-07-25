@@ -69,7 +69,7 @@ def login(request):
     try:
         thread.start_new_thread(autoupdate, ( 5,))
     except:
-        print "Error: unable to start thread"
+        print ("Error: unable to start thread")
 
     if request.method == 'POST':
         login_info = user_login(request.POST)

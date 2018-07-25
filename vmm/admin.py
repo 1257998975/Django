@@ -6,9 +6,9 @@ import atexit
 from django.http import HttpResponseRedirect
 import simplejson
 # 从django.http命名空间引入一个HttpResponse的类
-from login import login
-from login import isadmin_user_info
-import login
+from vmm.login import login
+from vmm.login import isadmin_user_info
+import vmm.login
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
@@ -35,18 +35,18 @@ from vmm.class_ob import ob_vs
 def index(request):
     if request.session.get('user_id') and isadmin_user_info(request.session.get('user_id')):
         vms_ob = vms.objects.all()
-        j=0
-        i=0
-        c=0
+        j = 0
+        i = 0
+        c = 0
         for vm in vms_ob:
-            j+=1
-            if(vm.vm_power==1):
-                i+=1
-            if(vm.vm_dispose==0):
-                c+=1
+            j += 1
+            if (vm.vm_power == 1):
+                i += 1
+            if (vm.vm_dispose == 0):
+                c += 1
         user = users.objects.get(user_id=request.session['user_id'])
         tp = loader.get_template("backend/index.html")
-        html = tp.render({"running": i, "vms": j,"dispose":c,"username":user.real_name})
+        html = tp.render({"running": i, "vms": j, "dispose": c, "username": user.real_name})
         return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -67,28 +67,28 @@ def listvm(request):
             vms_include = []  # 用于打包虚拟机列表及其使用者
             k = False
             for vm_sq in vm_infor:
-                vms_obj = vm_obj()
-                vms_obj.vm_ob = vm_sq
-                for user in user_info:
-                    if (user.user_id == vm_sq.vm_user_id):
-                        k = True
-                        vms_obj.user = user.real_name
-                        vms_obj.enabled = vm_sq.vm_enabled
-                        break
-                if (not k):
-                    vms_obj.user = ""
-                    vms_obj.enabled = ""
-                vms_include.append(vms_obj)
+                if vm_sq.vm_dispose:
+                    vms_obj = vm_obj()
+                    vms_obj.vm_ob = vm_sq
+                    for user in user_info:
+                        if (user.user_id == vm_sq.vm_user_id):
+                            k = True
+                            vms_obj.user = user.real_name
+                            vms_obj.enabled = vm_sq.vm_enabled
+                            break
+                    if (not k):
+                        vms_obj.user = ""
+                        vms_obj.enabled = ""
+                    vms_include.append(vms_obj)
             # 载入模板，传递一个集合给模板，让模板渲染成html返回
             user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("backend/list.html")
-            html = tp.render({"vms": vms_include,"username":user.real_name})
+            html = tp.render({"vms": vms_include, "username": user.real_name})
             return HttpResponse(html)
         except vmodl.MethodFault as error:
             return HttpResponse("Caught vmodl fault : " + error.msg)
     else:
         return HttpResponseRedirect("/login")
-
 
 
 # -----------------------------------------------------------------------------------------------
@@ -112,7 +112,6 @@ def createvm(request):
                     if (vm_enabled == (1,)):
                         k = True
                         break
-
 
                 if k:
                     return HttpResponse("该名称已存在")
@@ -154,16 +153,15 @@ def dispapp(request):
             op_type = request.GET.get('type')
             db_info_renew = vms.objects.get(vm_id=input_id)
             db_info_renew.vm_dispose = True
-            db_info_renew.vm_enabled=1
-            db_info_renew.save()
             if op_type == "1":
+                db_info_renew.vm_enabled = 1
+                db_info_renew.save()
                 if creat(db_info_renew) & config(db_info_renew):
-
-                    print ("chenggong")
                     return HttpResponse("创建成功, 请返回虚拟机列表页面查看")
                 else:
                     return HttpResponse("创建失败")
             else:
+                db_info_renew.save()
                 return HttpResponse("拒绝创建")
         else:
             vm_infor = vms.objects.all()  # 获得vms表单信息
@@ -182,12 +180,12 @@ def dispapp(request):
                     vms_include.append(vms_obj)
             user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("backend/disapp.html")
-            html = tp.render({"vms": vms_include,"username":user.real_name})
+            html = tp.render({"vms": vms_include, "username": user.real_name})
             return HttpResponse(html)
         else:
             user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("backend/disapp.html")
-            html = tp.render({"vms": vms_include,"username":user.real_name})
+            html = tp.render({"vms": vms_include, "username": user.real_name})
             return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -255,7 +253,7 @@ def profile(request):
                     users_ob.append(user_ob)
         user = users.objects.get(user_id=request.session['user_id'])
         tp = loader.get_template("backend/profile.html")
-        html = tp.render({"users": users_ob,"username":user.real_name})
+        html = tp.render({"users": users_ob, "username": user.real_name})
         return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
@@ -296,8 +294,7 @@ def modify(request):
         else:
             user = users.objects.get(user_id=request.session['user_id'])
             tp = loader.get_template("backend/modify.html")
-            html = tp.render({"username":user.real_name})
+            html = tp.render({"username": user.real_name})
             return HttpResponse(html)
     else:
         return HttpResponseRedirect("/login")
-

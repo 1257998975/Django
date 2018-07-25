@@ -29,7 +29,7 @@ class Vsphere(object):
         return children
 
 
-ob_vs = Vsphere("10.84.0.116",
+ob_vs = Vsphere("10.84.0.30",
                 "administrator@vsphere.local",
                 "123qweASD.",
                 443)

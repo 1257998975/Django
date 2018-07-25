@@ -81,7 +81,7 @@ def clone_vm(
     else:
         resource_pool = cluster.resourcePool
 
-    print(resource_pool)
+
 
     # set relospec
     relospec = vim.vm.RelocateSpec()
@@ -110,6 +110,7 @@ def creat(vm):
     template = None
 
     template = get_obj(content, [vim.VirtualMachine], os)
+
     if template:
         x = clone_vm(
             content, template, name, ob_vs.si,

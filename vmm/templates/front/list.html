@@ -18,104 +18,104 @@
 {% block title %}虚拟机云管理{% endblock %}
 
 {% block block_sidebar %}
-            <div class="sidebar-menu">
-                <div class="item">
-                    <a href="/front/index">
-                        <i class="icon icon-dashboard"></i>
-                        <span>主页 </span>
-                    </a>
-                </div>
-                <div class="item vertical active open">
-                        <a href="#" >
-                            <i class="icon icon-bell-alt"></i>
-                            <span>虚拟机管理</span>
-                            <span class="arrow"></span>
-                        </a>
-                        <div class="vertical-menu">
-                            <a style="color: #43a047" href="/front/list">虚拟机列表</a>
-                            <a href="/front/createvm">申请虚拟机</a>
-                        </div>
-                </div>
-                <div class="item">
-                    <a href="/front/modify">
-                        <i class="icon icon-cogs"></i>
-                        <span>修改密码</span>
-                    </a>
-                </div>
+    <div class="sidebar-menu">
+        <div class="item">
+            <a href="/front/index">
+                <i class="icon icon-dashboard"></i>
+                <span>主页 </span>
+            </a>
+        </div>
+        <div class="item vertical active open">
+            <a href="#">
+                <i class="icon icon-bell-alt"></i>
+                <span>虚拟机管理</span>
+                <span class="arrow"></span>
+            </a>
+            <div class="vertical-menu">
+                <a style="color: #43a047" href="/front/list">虚拟机列表</a>
+                <a href="/front/createvm">申请虚拟机</a>
             </div>
-            {% endblock %}
+        </div>
+        <div class="item">
+            <a href="/front/modify">
+                <i class="icon icon-cogs"></i>
+                <span>修改密码</span>
+            </a>
+        </div>
+    </div>
+{% endblock %}
 
 
 {% block main %}
-<div id="listvmm">
-    <div class="panel-heading"><h5>虚拟机管理</h5></div>
-<div class="panel-body">
-    <table class="table table-bordered table-hover table-striped">
-        <thead>
-        <tr>
-            <th width="40" class="text-center"><input type="checkbox" name="checkbox"></th>
-            <th width="50" class="text-center">系统</th>
-            <th>主机</th>
-            <th width="200" class="text-center">IP地址</th>
+    <div id="listvmm">
+        <div class="panel-heading"><h5>虚拟机管理</h5></div>
+        <div class="panel-body">
+            <table class="table table-bordered table-hover table-striped">
+                <thead>
+                <tr>
+                    <th width="40" class="text-center"><input type="checkbox" name="checkbox"></th>
+                    <th width="50" class="text-center">系统</th>
+                    <th>主机</th>
+                    <th width="200" class="text-center">IP地址</th>
 
-            <th width="140" class="text-center">CPU/MHz</th>
-            <th width="140" class="text-center">内存/MB</th>
-            <th width="140" class="text-center">操作</th>
-        </tr>
-        </thead>
-        <tbody>
+                    <th width="140" class="text-center">CPU/MHz</th>
+                    <th width="140" class="text-center">内存/MB</th>
+                    <th width="140" class="text-center">操作</th>
+                </tr>
+                </thead>
+                <tbody>
 
-        {% if vms %}
+                {% if vms %}
 
 
-            {% for vm in vms %}
-
-                    {% if not vm.vm_ob.config.template %}
+                    {% for vm in vms %}
                         <tr id="r{{ forloop.counter }}">
                             <td class="text-center">
-                                <input type="checkbox" name="checkbox" value="{{ vm.vm_ob.summary.config.instanceUuid }}">
+                                <input type="checkbox" name="checkbox"
+                                       value="{{ vm.vm_ob.vm_uuid }}">
                             </td>
                             <td class="text-center">
-                                {% if vm.vm_ob.guest.guestFamily == "windowsGuest" %}
-                                    Windows
-                                {% elif vm.vm_ob.guest.guestFamily == "linuxGuest" %}
-                                    Linux
+                                {{ vm.vm_ob.vm_os }}
+                            </td>
+                            <td><a href="{{ vm.vm_url }}"> {{ vm.vm_ob.vm_name }}</a></td>
+                            <td class="text-center">{{  vm.vm_ob.vm_ip }}</td>
+
+                            <td class="text-center">{{vm.vm_ob.vm_cpu }}</td>
+                            <td class="text-center">{{ vm.vm_ob.vm_memory }}</td>
+                            <td class="text-center opt">
+                                {% if  vm.vm_ob.vm_power == 0  %}
+                                    <button type="button" class="btn btn-sm btn-success btn_poweron"><i
+                                            class="icon-play"></i>打开
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-sm btn-danger btn_poweroff"><i
+                                            class="icon-off"></i>关机
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger btn_reboot"><i
+                                            class="icon-refresh"></i>重启
+                                    </button>
                                 {% endif %}
                             </td>
-                            <td><a href="{{ vm.vm_url }}"> {{ vm.vm_ob.summary.config.name }}</a></td>
-                            <td class="text-center">{{ vm.vm_ob.summary.guest.ipAddress }}</td>
-
-                        <td class="text-center">{{ vm.vm_ob.summary.quickStats.overallCpuUsage }}/{{ vm.vm_ob.summary.runtime.maxCpuUsage }}</td>
-                        <td class="text-center">{{ vm.vm_ob.summary.quickStats.guestMemoryUsage }}/{{ vm.vm_ob.summary.runtime.maxMemoryUsage }}</td>
-                        <td class="text-center opt">
-                            {% if vm.vm_ob.summary.runtime.powerState|length > 9 %}
-                                <button type="button" class="btn btn-sm btn-success btn_poweron"><i class="icon-play"></i>打开</button>
-                            {% else %}
-                                <button type="button" class="btn btn-sm btn-danger btn_poweroff"><i class="icon-off"></i>关机</button>
-                                <button type="button" class="btn btn-sm btn-danger btn_reboot"><i class="icon-refresh"></i>重启</button>
-                            {% endif %}
-                        </td>
-                    </tr>
+                        </tr>
+                    {% endfor %}
                 {% endif %}
-            {% endfor %}
-        {% endif %}
-            </tbody>
-            <tfoot>
-            <tr>
-                <th width="40" class="text-center"><input type="checkbox" name="checkbox"></th>
-                <th colspan="8">
-                    <button type="button" class="btn btn-danger"><i class="icon-trash"></i> 删除</button>
-                    <div class="pull-right">
-                        <ul class="pager">
-                            <li class="previous"><a href="#">«</a></li>
-                            <li class="active"><a href="#">1</a></li>
-                            <li class="next"><a href="#">»</a></li>
-                        </ul>
-                    </div>
-                </th>
-            </tr>
-            </tfoot>
-        </table>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th width="40" class="text-center"><input type="checkbox" name="checkbox"></th>
+                    <th colspan="8">
+                        <button type="button" class="btn btn-danger"><i class="icon-trash"></i> 删除</button>
+                        <div class="pull-right">
+                            <ul class="pager">
+                                <li class="previous"><a href="#">«</a></li>
+                                <li class="active"><a href="#">1</a></li>
+                                <li class="next"><a href="#">»</a></li>
+                            </ul>
+                        </div>
+                    </th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
-</div>
 {% endblock %}
